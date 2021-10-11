@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import "./App.css";
 
 interface StolenCase {
@@ -11,19 +12,24 @@ interface StolenCase {
 function App() {
   const [cases, setCases] = useState<StolenCase[]>([] as StolenCase[]);
   const [casesCount, setCasesCount] = useState<number>(0);
+  const [description, setDescription] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
+  const { register, handleSubmit } = useForm();
+  const onSubmitFilters = (data: any) => {
+    setDescription(data.description);
+  };
 
   const fetchStolenBikes = () => {
     setIsLoading(true);
     Promise.all([
       fetch(
-        `https://bikeindex.org:443/api/v3/search?page=${page}&per_page=${perPage}&location=Berlin&distance=1&stolenness=stolen`
+        `https://bikeindex.org:443/api/v3/search?page=${page}&per_page=${perPage}&location=Berlin&distance=1&stolenness=stolen&query=${description}`
       ),
       fetch(
-        `https://bikeindex.org:443/api/v3/search/count?location=Berlin&distance=1&stolenness=stolen`
+        `https://bikeindex.org:443/api/v3/search/count?location=Berlin&distance=1&stolenness=stolen&query=${description}`
       ),
     ])
       .then(async ([bikes, count]) => {
@@ -62,7 +68,7 @@ function App() {
 
   useEffect(() => {
     fetchStolenBikes();
-  }, [page]);
+  }, [page, description]);
 
   return (
     <div className="app">
@@ -72,19 +78,28 @@ function App() {
         </figure>
         <h1>Police department of Berlin</h1>
       </header>
-      <div className="filters">
+      <form onSubmit={handleSubmit(onSubmitFilters)} className="filters">
         <input
+          {...register("description")}
           type="text"
           className="description form-control mx-2"
           placeholder="Search case description"
         />
         <input
+          {...register("startDate")}
           type="date"
           name="start"
-          className="start-date form-control mx-2"
+          disabled={true}
+          className="start-date form-control disabled mx-2"
         />
-        <input type="date" name="end" className="end-date form-control x-2" />
-        <div className="dropdown">
+        <input
+          {...register("endDate")}
+          type="date"
+          name="end"
+          disabled={true}
+          className="end-date form-control disabled mx-2"
+        />
+        <div className="dropdown mx-2">
           <button
             className="btn btn-primary dropdown-toggle"
             type="button"
@@ -104,17 +119,22 @@ function App() {
             ))}
           </ul>
         </div>
-        <button className="button btn btn-primary mx-2">Find cases</button>
-      </div>
+        <button type="submit" className="button btn btn-primary mx-2">
+          Find cases
+        </button>
+      </form>
       <div className="content">
         {isLoading && <div className="loading">Cargando...</div>}
         {hasError && <div className="loading">Error...</div>}
-        {!isLoading && !hasError && (
+        {!isLoading && !hasError && !cases.length && (
+          <div className="no-items">No hay resultados...</div>
+        )}
+        {!isLoading && !hasError && cases.length && (
           <>
-            <div className="count">Total: {casesCount}</div>
+            <div className="count">Total: {casesCount || 0}</div>
             <ul className="card-list">
               {cases.map((bike) => (
-                <li key={bike.title}>
+                <li key={bike.date_stolen}>
                   <div className="card-item">
                     <figure>
                       <img src={bike.thumb} className="img" />
