@@ -1,47 +1,36 @@
 import React, { useEffect, useState } from "react";
+
 import "./App.css";
 import Filters from "./components/filters";
 import Pagination from "./components/pagination";
+import { StolenCase } from "./entities/stolen-case";
+import { fetchStolenBikesService } from "./services/bikes.service";
 
-interface StolenCase {
-  title: string;
-  thumb: string;
-  date_stolen: number;
-  stolen_location: string;
-  description: string;
-}
+const CITY = "Berlin";
 
 function App() {
   const [cases, setCases] = useState<StolenCase[]>([] as StolenCase[]);
   const [casesCount, setCasesCount] = useState<number>(0);
   const [description, setDescription] = useState<string>("");
+  const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [page, setPage] = useState(1);
 
-  const fetchStolenBikes = () => {
+  const fetchStolenBikes = ({
+    page,
+    perPage,
+    description,
+  }: {
+    page: number;
+    perPage?: number;
+    description?: string;
+  }) => {
     setIsLoading(true);
-    let searchUrl = `https://bikeindex.org:443/api/v3/search?page=${page}&per_page=${perPage}&location=Berlin&distance=1&stolenness=stolen`;
-    let countUrl = `https://bikeindex.org:443/api/v3/search/count?location=Berlin&distance=1&stolenness=stolen`;
-    if (description) {
-      searchUrl = searchUrl + `&query=${description}`;
-      countUrl = countUrl + `&query=${description}`;
-    }
-    Promise.all([fetch(searchUrl), fetch(countUrl)])
-      .then(async ([bikes, count]) => {
-        if (!bikes.ok || !count.ok) {
-          throw new Error("Not 2xx response");
-        } else {
-          return {
-            bikesResponse: await bikes.json(),
-            countResponse: await count.json(),
-          };
-        }
-      })
-      .then(({ bikesResponse, countResponse }) => {
-        setCases(bikesResponse.bikes || []);
-        setCasesCount(countResponse.stolen || []);
+    fetchStolenBikesService(page, CITY, perPage, description)
+      .then(({ bikes, count }) => {
+        setCases(bikes);
+        setCasesCount(count);
       })
       .catch(() => {
         setHasError(true);
@@ -51,13 +40,9 @@ function App() {
       });
   };
 
-  const totalPages = () => {
-    return Math.ceil(casesCount / perPage);
-  };
-
   useEffect(() => {
-    fetchStolenBikes();
-  }, [page, description]);
+    fetchStolenBikes({ page, perPage, description });
+  }, []);
 
   return (
     <div className="app">
@@ -65,16 +50,24 @@ function App() {
         <figure>
           <img src="/logo.png" alt="logo" />
         </figure>
-        <h1>Police department of Berlin</h1>
+        <h1>Departamento de policía de {CITY}</h1>
       </header>
       <Filters
         onSubmit={(perPage, description) => {
+          setPage(1);
           setPerPage(perPage);
           setDescription(description);
+          fetchStolenBikes({ page, perPage, description });
         }}
       />
       <div className="content">
-        {isLoading && <div className="loading">Cargando...</div>}
+        {isLoading && (
+          <div className="loading">
+            <div className="spinner-border text-danger" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        )}
         {hasError && <div className="loading">Opps, algo salió mal...</div>}
         {!isLoading && !hasError && !cases.length && (
           <div className="no-items">No hay resultados...</div>
@@ -87,17 +80,23 @@ function App() {
                 <li key={`${bike.date_stolen}-${i}`}>
                   <div className="card-item">
                     <figure>
-                      <img src={bike.thumb} className="img" />
+                      {bike.thumb ? (
+                        <img loading="lazy" src={bike.thumb} alt={bike.title} className="img" />
+                      ) : (
+                        <img src={"/bicycle.png"} alt={"Default bike"} className="img" />
+                      )}
                     </figure>
                     <div className="texts">
                       <div className="name">{bike.title}</div>
                       <div className="description">
-                        {bike.description ? bike.description : "No description"}
+                        {bike.description
+                          ? bike.description
+                          : "Sin descripción"}
                       </div>
                       <div className="description">
                         {bike.stolen_location
-                          ? bike.stolen_location
-                          : "No location"}
+                          ? `Ubicación: ${bike.stolen_location}`
+                          : "Sin ubicación"}
                       </div>
                       <div className="dates">
                         {new Date(bike.date_stolen).toLocaleString()}
@@ -109,8 +108,12 @@ function App() {
             </ul>
             <Pagination
               currentPage={page}
-              totalPages={totalPages()}
-              onChangePage={setPage}
+              perPage={perPage}
+              casesCount={casesCount}
+              onChangePage={(p) => {
+                setPage(p);
+                fetchStolenBikes({ page, perPage, description });
+              }}
             />
           </>
         )}

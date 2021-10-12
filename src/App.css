@@ -6,10 +6,12 @@
 
 .app .header {
   display: flex;
+  margin: 0 0 20px 0;
   align-items: center;
 }
 
 .app .header figure {
+  margin: 0;
   width: 180px;
 }
 
@@ -27,6 +29,10 @@
   white-space: nowrap;
 }
 
+.app .content {
+  padding: 0 10px;
+}
+
 .app .content .count {
   text-align: right;
 }
@@ -37,7 +43,7 @@
 }
 
 .app .content .card-list .card-item {
-  width: 720px;
+  max-width: 720px;
   display: flex;
   padding: 10px;
   margin: 0 0 20px 0;
@@ -57,4 +63,13 @@
 .app .content .card-list .card-item figure .img {
   width: 100%;
   height: 100%;
+}
+
+.app .content .card-list .card-item .texts .name {
+  color: var(--bs-danger);
+  font-weight: 500;
+}
+
+.app .pagination nav {
+  margin: auto;
 }

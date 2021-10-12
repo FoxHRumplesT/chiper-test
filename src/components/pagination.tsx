@@ -2,19 +2,25 @@ import { FC } from "react";
 
 interface PaginationProps {
   currentPage: number;
-  totalPages: number;
+  perPage: number;
+  casesCount: number;
   onChangePage: (page: number) => void;
 }
 
 const Pagination: FC<PaginationProps> = ({
   currentPage,
-  totalPages,
+  perPage,
+  casesCount,
   onChangePage,
 }) => {
+  const totalPages = () => {
+    return Math.ceil(casesCount / perPage);
+  };
+
   const pagesToShow = () => {
     return currentPage === 1
       ? [currentPage, 2, 3]
-      : currentPage === totalPages
+      : currentPage === totalPages()
       ? [currentPage + 2, currentPage - 1, currentPage]
       : [currentPage - 1, currentPage, currentPage + 1];
   };
@@ -52,7 +58,7 @@ const Pagination: FC<PaginationProps> = ({
           ))}
           <li
             className={`page-item ${
-              currentPage === totalPages ? "disabled" : ""
+              currentPage === totalPages() ? "disabled" : ""
             }`}
             onClick={() => onChangePage(currentPage + 1)}
           >
@@ -62,9 +68,9 @@ const Pagination: FC<PaginationProps> = ({
           </li>
           <li
             className={`page-item ${
-              currentPage === totalPages ? "disabled" : ""
+              currentPage === totalPages() ? "disabled" : ""
             }`}
-            onClick={() => onChangePage(totalPages)}
+            onClick={() => onChangePage(totalPages())}
           >
             <a className="page-link" href="#">
               Last

@@ -17,25 +17,11 @@ const Filters: FC<FiltersProps> = ({ onSubmit }) => {
         {...register("description")}
         type="text"
         className="description form-control mx-2"
-        placeholder="Search case description"
-      />
-      <input
-        {...register("startDate")}
-        type="date"
-        name="start"
-        disabled={true}
-        className="start-date form-control disabled mx-2"
-      />
-      <input
-        {...register("endDate")}
-        type="date"
-        name="end"
-        disabled={true}
-        className="end-date form-control disabled mx-2"
+        placeholder="Titulo del caso"
       />
       <div className="dropdown mx-2">
         <button
-          className="btn btn-primary dropdown-toggle"
+          className="btn btn-danger dropdown-toggle"
           type="button"
           id="dropdownMenuButton1"
           data-bs-toggle="dropdown"
@@ -53,8 +39,8 @@ const Filters: FC<FiltersProps> = ({ onSubmit }) => {
           ))}
         </ul>
       </div>
-      <button type="submit" className="button btn btn-primary mx-2">
-        Find cases
+      <button type="submit" className="button btn btn-danger mx-2">
+        Buscar
       </button>
     </form>
   );
