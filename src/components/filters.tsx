@@ -1,6 +1,8 @@
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import styles from './filters.module.css';
+
 interface FiltersProps {
   onSubmit: (perPage: number, description: string) => void;
 }
@@ -12,7 +14,7 @@ const Filters: FC<FiltersProps> = ({ onSubmit }) => {
     onSubmit(perPage, data.description);
   };
   return (
-    <form onSubmit={handleSubmit(onSubmitFilters)} className="filters">
+    <form onSubmit={handleSubmit(onSubmitFilters)} className={styles["filters"]}>
       <input
         {...register("description")}
         type="text"
@@ -39,7 +41,7 @@ const Filters: FC<FiltersProps> = ({ onSubmit }) => {
           ))}
         </ul>
       </div>
-      <button type="submit" className="button btn btn-danger mx-2">
+      <button type="submit" className={`${["button"]} btn btn-danger mx-2`}>
         Buscar
       </button>
     </form>

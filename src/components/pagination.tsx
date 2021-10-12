@@ -1,4 +1,5 @@
 import { FC } from "react";
+import styles from './pagination.module.css';
 
 interface PaginationProps {
   currentPage: number;
@@ -18,15 +19,23 @@ const Pagination: FC<PaginationProps> = ({
   };
 
   const pagesToShow = () => {
-    return currentPage === 1
-      ? [currentPage, 2, 3]
-      : currentPage === totalPages()
-      ? [currentPage + 2, currentPage - 1, currentPage]
-      : [currentPage - 1, currentPage, currentPage + 1];
+    if (totalPages() >= 3) {
+      return currentPage === 1
+        ? [currentPage, 2, 3]
+        : currentPage === totalPages()
+        ? [currentPage - 2, currentPage - 1, currentPage]
+        : [currentPage - 1, currentPage, currentPage + 1];
+    } else {
+      const x = [];
+      for (let index = 1; index <= totalPages(); index++) {
+        x.push(index);
+      }
+      return x;
+    }
   };
 
   return (
-    <div className="pagination">
+    <div className={`pagination ${styles["pagination"]}`}>
       <nav aria-label="Page navigation example">
         <ul className="pagination">
           <li

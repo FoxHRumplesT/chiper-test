@@ -1,0 +1,9 @@
+.filters {
+  display: flex;
+  margin: 0 0 50px;
+}
+
+.button {
+  display: flex;
+  white-space: nowrap;
+}

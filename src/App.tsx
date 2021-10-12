@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import "./App.css";
+import CardList from "./components/card-list";
 import Filters from "./components/filters";
 import Pagination from "./components/pagination";
 import { StolenCase } from "./entities/stolen-case";
@@ -75,37 +76,7 @@ function App() {
         {!isLoading && !hasError && !!cases.length && (
           <>
             <div className="count">Total: {casesCount || 0}</div>
-            <ul className="card-list">
-              {cases.map((bike, i) => (
-                <li key={`${bike.date_stolen}-${i}`}>
-                  <div className="card-item">
-                    <figure>
-                      {bike.thumb ? (
-                        <img loading="lazy" src={bike.thumb} alt={bike.title} className="img" />
-                      ) : (
-                        <img src={"/bicycle.png"} alt={"Default bike"} className="img" />
-                      )}
-                    </figure>
-                    <div className="texts">
-                      <div className="name">{bike.title}</div>
-                      <div className="description">
-                        {bike.description
-                          ? bike.description
-                          : "Sin descripción"}
-                      </div>
-                      <div className="description">
-                        {bike.stolen_location
-                          ? `Ubicación: ${bike.stolen_location}`
-                          : "Sin ubicación"}
-                      </div>
-                      <div className="dates">
-                        {new Date(bike.date_stolen).toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <CardList cases={cases} />
             <Pagination
               currentPage={page}
               perPage={perPage}
